@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Registration – AMS</title>
+  <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="index.html" class="navbar-brand">
+    <div class="logo-icon">🎓</div>
+    Academy Management System
+  </a>
+  <div class="navbar-links">
+    <button class="nav-link" onclick="location.href='index.html'">← Back to Home</button>
+    <button class="nav-link" onclick="location.href='admin-login.html'">Admin Login</button>
+  </div>
+</nav>
+
+<div class="main-content narrow">
+
+  <!-- Breadcrumb -->
+  <div class="d-flex align-center gap-8 mb-20" style="font-size:12px; color:var(--text-light);">
+    <a href="index.html" style="color:var(--text-light);">Home</a>
+    <span>›</span>
+    <span style="color:var(--blue); font-weight:600;">Registration</span>
+    <span>›</span>
+    <span>Instructions</span>
+    <span>›</span>
+    <span>Exam</span>
+  </div>
+
+  <div class="page-header">
+    <h1 id="page-title">Student Registration</h1>
+    <p>Fill in all the details below. Fields marked <span style="color:var(--red);">*</span> are required.</p>
+  </div>
+
+  <!-- Exam type alert -->
+  <div class="alert alert-info mb-16">
+    <span id="exam-icon">📝</span>
+    <span>You are registering for: <strong id="exam-type-display">—</strong></span>
+  </div>
+
+  <div class="card">
+
+    <!-- ══ COMMON: Personal Info ══ -->
+    <div class="card-title">Personal Information</div>
+
+    <div class="form-group">
+      <label>Full Name <span class="req">*</span></label>
+      <input type="text" id="f-name" class="form-control" placeholder="Enter your full name"/>
+      <div class="invalid-feedback" id="err-name">Please enter your full name.</div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Phone Number <span class="req">*</span></label>
+        <input type="tel" id="f-phone" class="form-control" placeholder="10-digit mobile" maxlength="10"/>
+        <div class="invalid-feedback" id="err-phone">Enter a valid 10-digit number.</div>
+      </div>
+      <div class="form-group">
+        <label>Email ID <span class="req">*</span></label>
+        <input type="email" id="f-email" class="form-control" placeholder="yourname@email.com"/>
+        <div class="invalid-feedback" id="err-email">Enter a valid email address.</div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Address <span class="req">*</span></label>
+      <input type="text" id="f-address" class="form-control" placeholder="City, State"/>
+      <div class="invalid-feedback" id="err-address">Please enter your address.</div>
+    </div>
+
+    <!-- ══ ONLINE QUIZ FIELDS ══ -->
+    <div id="section-quiz" style="display:none;">
+      <div class="divider"></div>
+      <div class="card-title" style="margin-top:4px;">School Details</div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Standard / Class <span class="req">*</span></label>
+          <input type="text" id="f-quiz-std" class="form-control" placeholder="e.g. 8th, 10th, 12th"/>
+          <div class="invalid-feedback" id="err-quiz-std">Please enter your class.</div>
+        </div>
+        <div class="form-group">
+          <label>Board <span class="req">*</span></label>
+          <div class="board-selector" id="board-selector-quiz">
+            <button class="board-option" onclick="selectBoard('CBSE','quiz')">CBSE</button>
+            <button class="board-option" onclick="selectBoard('State','quiz')">State</button>
+            <button class="board-option" onclick="selectBoard('ICSE','quiz')">ICSE</button>
+          </div>
+          <input type="hidden" id="f-quiz-board"/>
+          <div class="invalid-feedback" id="err-quiz-board">Please select a board.</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>School Name <span class="req">*</span></label>
+        <input type="text" id="f-quiz-school" class="form-control" placeholder="Full name of your school"/>
+        <div class="invalid-feedback" id="err-quiz-school">Please enter your school name.</div>
+      </div>
+    </div>
+
+    <!-- ══ PLACEMENT EXAM FIELDS ══ -->
+    <div id="section-placement" style="display:none;">
+      <div class="divider"></div>
+      <div class="notice-box" style="margin-bottom:16px;">
+        🏢 <strong>Placement Exam</strong> is for final-year college students seeking campus recruitment opportunities.
+      </div>
+      <div class="card-title" style="margin-top:4px;">College &amp; Academic Details</div>
+
+      <div class="form-group">
+        <label>College / University Name <span class="req">*</span></label>
+        <input type="text" id="f-pl-college" class="form-control" placeholder="Full name of your college"/>
+        <div class="invalid-feedback" id="err-pl-college">Please enter your college name.</div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Degree / Course <span class="req">*</span></label>
+          <select id="f-pl-degree" class="form-control">
+            <option value="">Select degree…</option>
+            <option>B.E. / B.Tech</option>
+            <option>B.Sc</option>
+            <option>B.Com</option>
+            <option>B.A</option>
+            <option>BCA</option>
+            <option>MBA</option>
+            <option>MCA</option>
+            <option>M.Tech</option>
+            <option>M.Sc</option>
+            <option>Other</option>
+          </select>
+          <div class="invalid-feedback" id="err-pl-degree">Please select your degree.</div>
+        </div>
+        <div class="form-group">
+          <label>Branch / Specialisation <span class="req">*</span></label>
+          <input type="text" id="f-pl-branch" class="form-control" placeholder="e.g. Computer Science, ECE"/>
+          <div class="invalid-feedback" id="err-pl-branch">Please enter your branch.</div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Year of Passing <span class="req">*</span></label>
+          <select id="f-pl-year" class="form-control">
+            <option value="">Select year…</option>
+            <option>2026</option>
+            <option>2027</option>
+            <option>2028</option>
+          </select>
+          <div class="invalid-feedback" id="err-pl-year">Please select passing year.</div>
+        </div>
+        <div class="form-group">
+          <label>Current CGPA / Percentage <span class="req">*</span></label>
+          <input type="text" id="f-pl-cgpa" class="form-control" placeholder="e.g. 8.5 CGPA or 78%"/>
+          <div class="invalid-feedback" id="err-pl-cgpa">Please enter your CGPA or percentage.</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Skills / Technologies Known</label>
+        <input type="text" id="f-pl-skills" class="form-control" placeholder="e.g. Java, Python, SQL (comma separated)"/>
+        <div class="form-text">Optional — helps companies shortlist candidates.</div>
+      </div>
+
+      <div class="form-group">
+        <label>Backlogs <span class="req">*</span></label>
+        <div class="board-selector">
+          <button class="board-option" id="backlog-no"  onclick="selectBacklog('No')">No Backlogs</button>
+          <button class="board-option" id="backlog-yes" onclick="selectBacklog('Yes')">Have Backlogs</button>
+        </div>
+        <input type="hidden" id="f-pl-backlog"/>
+        <div class="invalid-feedback" id="err-pl-backlog">Please select backlog status.</div>
+      </div>
+    </div>
+
+    <!-- ══ TALENT EXAM FIELDS ══ -->
+    <div id="section-talent" style="display:none;">
+      <div class="divider"></div>
+      <div class="notice-box" style="margin-bottom:16px;">
+        ⭐ <strong>Talent Exam</strong> is a scholarship exam. Provide accurate academic and family details for eligibility verification.
+      </div>
+      <div class="card-title" style="margin-top:4px;">Academic Details</div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Standard / Class <span class="req">*</span></label>
+          <input type="text" id="f-ta-std" class="form-control" placeholder="e.g. 8th, 10th, 12th"/>
+          <div class="invalid-feedback" id="err-ta-std">Please enter your class.</div>
+        </div>
+        <div class="form-group">
+          <label>Board <span class="req">*</span></label>
+          <div class="board-selector" id="board-selector-talent">
+            <button class="board-option" onclick="selectBoard('CBSE','talent')">CBSE</button>
+            <button class="board-option" onclick="selectBoard('State','talent')">State</button>
+            <button class="board-option" onclick="selectBoard('ICSE','talent')">ICSE</button>
+          </div>
+          <input type="hidden" id="f-ta-board"/>
+          <div class="invalid-feedback" id="err-ta-board">Please select a board.</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>School Name <span class="req">*</span></label>
+        <input type="text" id="f-ta-school" class="form-control" placeholder="Full name of your school"/>
+        <div class="invalid-feedback" id="err-ta-school">Please enter your school name.</div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Last Year Marks (%) <span class="req">*</span></label>
+          <input type="number" id="f-ta-marks" class="form-control" placeholder="e.g. 85" min="0" max="100"/>
+          <div class="invalid-feedback" id="err-ta-marks">Enter a valid percentage (0–100).</div>
+        </div>
+        <div class="form-group">
+          <label>Category <span class="req">*</span></label>
+          <select id="f-ta-category" class="form-control">
+            <option value="">Select category…</option>
+            <option>General</option>
+            <option>OBC</option>
+            <option>SC</option>
+            <option>ST</option>
+            <option>EWS</option>
+          </select>
+          <div class="invalid-feedback" id="err-ta-category">Please select your category.</div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+      <div class="card-title" style="margin-top:4px;">Parent / Guardian Details</div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Parent / Guardian Name <span class="req">*</span></label>
+          <input type="text" id="f-ta-parent" class="form-control" placeholder="Father's / Mother's full name"/>
+          <div class="invalid-feedback" id="err-ta-parent">Please enter parent/guardian name.</div>
+        </div>
+        <div class="form-group">
+          <label>Parent Phone Number <span class="req">*</span></label>
+          <input type="tel" id="f-ta-pphone" class="form-control" placeholder="10-digit mobile" maxlength="10"/>
+          <div class="invalid-feedback" id="err-ta-pphone">Enter a valid 10-digit number.</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Annual Family Income <span class="req">*</span></label>
+        <select id="f-ta-income" class="form-control">
+          <option value="">Select range…</option>
+          <option>Below ₹1,00,000</option>
+          <option>₹1,00,000 – ₹2,50,000</option>
+          <option>₹2,50,000 – ₹5,00,000</option>
+          <option>₹5,00,000 – ₹8,00,000</option>
+          <option>Above ₹8,00,000</option>
+        </select>
+        <div class="invalid-feedback" id="err-ta-income">Please select income range.</div>
+        <div class="form-text">Required for scholarship eligibility verification.</div>
+      </div>
+    </div>
+
+    <!-- ══ SUBMIT ══ -->
+    <div class="divider"></div>
+    <div class="d-flex gap-12 justify-end">
+      <a href="index.html" class="btn btn-secondary">← Go Back</a>
+      <button class="btn btn-primary" onclick="submitForm()">Register &amp; Continue →</button>
+    </div>
+  </div>
+
+  <div class="text-small text-muted text-center mt-12">
+    Your details will be used for result declaration and certification only.
+  </div>
+
+</div>
+
+<footer class="footer">© 2026 Academy Management System. All rights reserved.</footer>
+
+<script src="js/data.js"></script>
+<script>
+  const examType = sessionStorage.getItem("ams_exam_type");
+  if (!examType) { location.href = "index.html"; }
+
+  // Set page title and show correct section
+  const titles = {
+    "Online Quiz":  "Online Quiz Registration",
+    "Placement":    "Placement Exam Registration",
+    "Talent Exam":  "Talent Exam Registration",
+  };
+  const icons = { "Online Quiz":"📝", "Placement":"🏢", "Talent Exam":"⭐" };
+  const sectionMap = { "Online Quiz":"quiz", "Placement":"placement", "Talent Exam":"talent" };
+
+  document.getElementById("page-title").textContent       = titles[examType]  || "Registration";
+  document.getElementById("exam-type-display").textContent = examType;
+  document.getElementById("exam-icon").textContent         = icons[examType] || "📝";
+  document.getElementById("section-" + sectionMap[examType]).style.display = "block";
+
+  // ── Board selector ─────────────────────────────────────
+  function selectBoard(b, type) {
+    document.getElementById("f-" + (type==="quiz" ? "quiz" : "ta") + "-board").value = b;
+    document.getElementById("board-selector-" + type)
+      .querySelectorAll(".board-option")
+      .forEach(el => el.classList.toggle("selected", el.textContent === b));
+    showErr((type==="quiz" ? "quiz" : "ta") + "-board", false);
+  }
+
+  // ── Backlog selector ───────────────────────────────────
+  function selectBacklog(v) {
+    document.getElementById("f-pl-backlog").value = v;
+    document.getElementById("backlog-no").classList.toggle("selected",  v === "No");
+    document.getElementById("backlog-yes").classList.toggle("selected", v === "Yes");
+    showErr("pl-backlog", false);
+  }
+
+  // ── Error helpers ──────────────────────────────────────
+  function showErr(field, fail) {
+    const e = document.getElementById("err-" + field);
+    const i = document.getElementById("f-" + field);
+    if (e) e.classList.toggle("show", fail);
+    if (i) i.classList.toggle("is-invalid", fail);
+  }
+
+  function v(id) {
+    const el = document.getElementById(id);
+    return el ? el.value.trim() : "";
+  }
+
+  // ── Validate & submit ──────────────────────────────────
+  function submitForm() {
+    let ok = true;
+
+    function req(field, condition) {
+      showErr(field, !condition);
+      if (!condition) ok = false;
+    }
+
+    // Common
+    const name    = v("f-name");
+    const phone   = v("f-phone");
+    const email   = v("f-email");
+    const address = v("f-address");
+    req("name",    !!name);
+    req("phone",   /^\d{10}$/.test(phone));
+    req("email",   email.includes("@") && email.includes("."));
+    req("address", !!address);
+
+    let extra = {};
+
+    if (examType === "Online Quiz") {
+      const std    = v("f-quiz-std");
+      const board  = v("f-quiz-board");
+      const school = v("f-quiz-school");
+      req("quiz-std",    !!std);
+      req("quiz-board",  !!board);
+      req("quiz-school", !!school);
+      extra = { std, board, school };
+    }
+
+    if (examType === "Placement") {
+      const college = v("f-pl-college");
+      const degree  = v("f-pl-degree");
+      const branch  = v("f-pl-branch");
+      const year    = v("f-pl-year");
+      const cgpa    = v("f-pl-cgpa");
+      const backlog = v("f-pl-backlog");
+      req("pl-college", !!college);
+      req("pl-degree",  !!degree);
+      req("pl-branch",  !!branch);
+      req("pl-year",    !!year);
+      req("pl-cgpa",    !!cgpa);
+      req("pl-backlog", !!backlog);
+      extra = { college, degree, branch, year, cgpa, skills: v("f-pl-skills"), backlog };
+    }
+
+    if (examType === "Talent Exam") {
+      const std      = v("f-ta-std");
+      const board    = v("f-ta-board");
+      const school   = v("f-ta-school");
+      const marks    = v("f-ta-marks");
+      const category = v("f-ta-category");
+      const parent   = v("f-ta-parent");
+      const pphone   = v("f-ta-pphone");
+      const income   = v("f-ta-income");
+      req("ta-std",      !!std);
+      req("ta-board",    !!board);
+      req("ta-school",   !!school);
+      req("ta-marks",    !!marks && +marks >= 0 && +marks <= 100);
+      req("ta-category", !!category);
+      req("ta-parent",   !!parent);
+      req("ta-pphone",   /^\d{10}$/.test(pphone));
+      req("ta-income",   !!income);
+      extra = { std, board, school, marks, category, parent, pphone, income };
+    }
+
+    if (!ok) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+
+    const student = { id: genId(), name, phone, email, address, examType, date: todayStr(), ...extra };
+    saveSession(student);
+    registrations.push(student);
+    saveData();
+    location.href = "instructions.html";
+  }
+</script>
+</body>
+</html>

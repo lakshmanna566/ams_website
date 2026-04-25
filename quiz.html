@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Exam – AMS</title>
+  <link rel="stylesheet" href="css/style.css"/>
+  <style>
+    body { background: var(--bg); }
+    .quiz-topbar {
+      background: white;
+      border-bottom: 1px solid var(--border);
+      padding: 10px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: var(--shadow-sm);
+    }
+    .quiz-topbar-left { font-size: 13px; }
+    .quiz-topbar-left strong { color: var(--blue); }
+  </style>
+</head>
+<body>
+
+<!-- Fixed quiz top bar -->
+<div class="quiz-topbar">
+  <div class="quiz-topbar-left">
+    <span id="tb-name">Student</span> &nbsp;|&nbsp; <strong id="tb-exam">Exam</strong> &nbsp;|&nbsp;
+    <span class="text-muted">Q <strong id="tb-qnum">1</strong>/25</span> &nbsp;|&nbsp;
+    <span class="text-muted">Answered: <strong id="tb-answered" style="color:var(--green);">0</strong></span>
+  </div>
+  <button class="btn btn-secondary btn-sm" onclick="confirmSubmit()">Submit Exam</button>
+</div>
+
+<div class="main-content" style="padding-top:20px;">
+  <div class="quiz-wrap" id="quiz-wrap">
+
+    <!-- Question area -->
+    <div>
+      <!-- Progress bar -->
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-fill" id="progress-fill" style="width:4%;"></div>
+      </div>
+
+      <!-- Question card -->
+      <div class="question-card" id="question-card">
+        <div class="question-num-badge">
+          <span id="q-subject-badge" class="badge badge-primary">Subject</span>
+          <span class="text-muted">Question <span id="q-num-display">1</span> of 25</span>
+          <span class="badge badge-secondary">+4 marks</span>
+        </div>
+        <div class="question-text" id="q-text">Loading question…</div>
+        <div class="options-list" id="options-list">
+          <!-- options rendered by JS -->
+        </div>
+      </div>
+
+      <!-- Navigation buttons -->
+      <div class="d-flex justify-between mt-16" style="align-items:center;">
+        <button class="btn btn-secondary" id="btn-prev" onclick="prevQ()">← Previous</button>
+        <button class="btn btn-primary" id="btn-next" onclick="nextQ()">Next Question →</button>
+      </div>
+    </div>
+
+    <!-- Right sidebar -->
+    <div>
+      <!-- Timer -->
+      <div class="timer-box">
+        <div class="timer-ring-wrap">
+          <svg width="80" height="80" viewBox="0 0 80 80">
+            <circle cx="40" cy="40" r="34" fill="none" stroke="var(--border)" stroke-width="6"/>
+            <circle id="timer-arc" cx="40" cy="40" r="34" fill="none"
+              stroke="var(--blue)" stroke-width="6" stroke-linecap="round"
+              stroke-dasharray="213.6" stroke-dashoffset="0"
+              style="transition: stroke-dashoffset 1s linear, stroke 0.3s;"/>
+          </svg>
+          <div class="timer-num" id="timer-num" style="color:var(--blue);">20</div>
+        </div>
+        <div class="timer-label">Seconds remaining</div>
+      </div>
+
+      <!-- Question navigator -->
+      <div class="q-navigator">
+        <div class="q-nav-title">Question Panel</div>
+        <div class="q-dots-grid" id="q-dots-grid">
+          <!-- rendered by JS -->
+        </div>
+        <div class="q-legend">
+          <div class="legend-item"><div class="legend-dot" style="background:var(--orange);"></div> Current</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--blue);"></div> Answered</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--border-dark);"></div> Not answered</div>
+        </div>
+      </div>
+
+      <!-- Status summary -->
+      <div class="card mt-12">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; text-align:center;">
+          <div>
+            <div style="font-size:20px; font-weight:700; color:var(--green);" id="stat-answered">0</div>
+            <div class="text-small text-muted">Answered</div>
+          </div>
+          <div>
+            <div style="font-size:20px; font-weight:700; color:var(--text-light);" id="stat-skipped">25</div>
+            <div class="text-small text-muted">Remaining</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Confirm submit modal -->
+<div class="modal-overlay" id="submit-modal">
+  <div class="modal-box" style="max-width:400px;">
+    <div class="modal-title">Submit Exam?</div>
+    <p class="text-muted text-small mb-16">You have answered <strong id="modal-answered">0</strong> out of 25 questions. <span id="modal-unanswered-note"></span></p>
+    <div class="d-flex gap-12 justify-end">
+      <button class="btn btn-secondary" onclick="closeModal()">Go Back &amp; Review</button>
+      <button class="btn btn-success" onclick="finalSubmit()">Yes, Submit Now</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/data.js"></script>
+<script>
+  // ── Load session ─────────────────────────────────────────
+  const student = loadSession();
+  if (!student) { location.href = "index.html"; }
+
+  document.getElementById("tb-name").textContent = student ? student.name : "";
+  document.getElementById("tb-exam").textContent = student ? student.examType : "";
+
+  const TOTAL = questionBank.length;
+  let answers  = JSON.parse(sessionStorage.getItem("ams_answers") || "null") || new Array(TOTAL).fill(null);
+  let qIdx     = parseInt(sessionStorage.getItem("ams_q_index") || "0");
+  let timeLeft = TIMER_SECONDS;
+  let timerRef = null;
+
+  // ── Render question ──────────────────────────────────────
+  function renderQ() {
+    const q = questionBank[qIdx];
+    document.getElementById("q-num-display").textContent  = qIdx + 1;
+    document.getElementById("tb-qnum").textContent         = qIdx + 1;
+    document.getElementById("q-subject-badge").textContent = q.subject;
+    document.getElementById("q-text").textContent          = q.q;
+
+    const list = document.getElementById("options-list");
+    list.innerHTML = "";
+    q.opts.forEach((opt, i) => {
+      const btn = document.createElement("button");
+      btn.className = "option-item" + (answers[qIdx] === i ? " selected" : "");
+      btn.innerHTML = `<span class="opt-label">${["A","B","C","D"][i]}</span><span>${escHtml(opt)}</span>`;
+      btn.onclick = () => selectAnswer(i);
+      list.appendChild(btn);
+    });
+
+    document.getElementById("progress-fill").style.width = `${((qIdx + 1) / TOTAL) * 100}%`;
+    document.getElementById("btn-prev").disabled = (qIdx === 0);
+    document.getElementById("btn-next").textContent = qIdx === TOTAL - 1 ? "Review & Submit" : "Next Question →";
+    renderDots();
+    updateStats();
+    resetTimer();
+  }
+
+  function selectAnswer(i) {
+    answers[qIdx] = i;
+    sessionStorage.setItem("ams_answers", JSON.stringify(answers));
+    renderQ();
+  }
+
+  function prevQ() { if (qIdx > 0) { qIdx--; sessionStorage.setItem("ams_q_index", qIdx); renderQ(); } }
+
+  function nextQ() {
+    if (qIdx === TOTAL - 1) { confirmSubmit(); return; }
+    qIdx++;
+    sessionStorage.setItem("ams_q_index", qIdx);
+    renderQ();
+  }
+
+  function jumpQ(i) { qIdx = i; sessionStorage.setItem("ams_q_index", qIdx); renderQ(); }
+
+  // ── Dot grid ─────────────────────────────────────────────
+  function renderDots() {
+    const grid = document.getElementById("q-dots-grid");
+    grid.innerHTML = "";
+    for (let i = 0; i < TOTAL; i++) {
+      const d = document.createElement("div");
+      d.className = "q-dot" + (i === qIdx ? " current" : answers[i] !== null ? " answered" : "");
+      d.textContent = i + 1;
+      d.onclick = () => jumpQ(i);
+      grid.appendChild(d);
+    }
+  }
+
+  // ── Stats ────────────────────────────────────────────────
+  function updateStats() {
+    const ans = answers.filter(a => a !== null).length;
+    document.getElementById("tb-answered").textContent   = ans;
+    document.getElementById("stat-answered").textContent = ans;
+    document.getElementById("stat-skipped").textContent  = TOTAL - ans;
+  }
+
+  // ── Timer ────────────────────────────────────────────────
+  const arc = document.getElementById("timer-arc");
+  const timerNum = document.getElementById("timer-num");
+  const CIRC = 213.6;
+
+  function resetTimer() {
+    clearInterval(timerRef);
+    timeLeft = TIMER_SECONDS;
+    updateTimerUI();
+    timerRef = setInterval(() => {
+      timeLeft--;
+      updateTimerUI();
+      if (timeLeft <= 0) {
+        clearInterval(timerRef);
+        // auto-advance
+        if (qIdx < TOTAL - 1) { qIdx++; sessionStorage.setItem("ams_q_index", qIdx); renderQ(); }
+        else { confirmSubmit(); }
+      }
+    }, 1000);
+  }
+
+  function updateTimerUI() {
+    timerNum.textContent = timeLeft;
+    const offset = CIRC - (timeLeft / TIMER_SECONDS) * CIRC;
+    arc.style.strokeDashoffset = offset;
+    if (timeLeft > 10) { arc.style.stroke = "var(--blue)"; timerNum.style.color = "var(--blue)"; }
+    else if (timeLeft > 5) { arc.style.stroke = "var(--orange)"; timerNum.style.color = "var(--orange)"; }
+    else { arc.style.stroke = "var(--red)"; timerNum.style.color = "var(--red)"; }
+  }
+
+  // ── Submit ───────────────────────────────────────────────
+  function confirmSubmit() {
+    clearInterval(timerRef);
+    const ans = answers.filter(a => a !== null).length;
+    document.getElementById("modal-answered").textContent = ans;
+    const unskipped = TOTAL - ans;
+    document.getElementById("modal-unanswered-note").textContent =
+      unskipped > 0 ? `${unskipped} question(s) are unanswered and will score 0.` : "Great — all questions are answered!";
+    document.getElementById("submit-modal").classList.add("open");
+  }
+
+  function closeModal() {
+    document.getElementById("submit-modal").classList.remove("open");
+    resetTimer();
+  }
+
+  function finalSubmit() {
+    clearInterval(timerRef);
+    // Calculate score
+    let correct = 0, wrong = 0, skipped = 0;
+    answers.forEach((a, i) => {
+      if (a === null) skipped++;
+      else if (a === questionBank[i].ans) correct++;
+      else wrong++;
+    });
+    const score = correct * 4;
+
+    // Save result
+    const result = {
+      id: student.id, name: student.name, examType: student.examType,
+      score, correct, wrong, skipped, date: todayStr()
+    };
+    results.push(result);
+    saveData();
+
+    // Store for result page
+    sessionStorage.setItem("ams_result", JSON.stringify(result));
+    sessionStorage.setItem("ams_final_answers", JSON.stringify(answers));
+
+    location.href = "result.html";
+  }
+
+  // ── Init ─────────────────────────────────────────────────
+  renderQ();
+</script>
+</body>
+</html>

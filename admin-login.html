@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Login – AMS</title>
+  <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="index.html" class="navbar-brand">
+    <div class="logo-icon">🎓</div>
+    Academy Management System
+  </a>
+  <div class="navbar-links">
+    <button class="nav-link" onclick="location.href='index.html'">← Back to Home</button>
+  </div>
+</nav>
+
+<div class="main-content" style="max-width:420px;">
+
+  <div class="text-center mb-24">
+    <div style="width:60px; height:60px; background:var(--blue-light); border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:28px; margin:0 auto 14px;">🔐</div>
+    <h1 style="font-size:22px; font-weight:700; margin-bottom:6px;">Admin Login</h1>
+    <p class="text-muted text-small">Use credentials: <strong>admin</strong> / <strong>admin123</strong></p>
+  </div>
+
+  <div id="login-alert" style="display:none;" class="alert alert-danger">
+    <span>⚠️</span>
+    <span id="login-alert-msg">Invalid username or password.</span>
+  </div>
+
+  <div class="card">
+    <div class="form-group">
+      <label>Username</label>
+      <input type="text" id="f-user" class="form-control" placeholder="Enter username" value="" onkeydown="if(event.key==='Enter') doLogin()"/>
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="f-pass" class="form-control" placeholder="Enter password" onkeydown="if(event.key==='Enter') doLogin()"/>
+    </div>
+    <button class="btn btn-primary btn-block" style="margin-top:6px;" onclick="doLogin()">Login →</button>
+  </div>
+
+  <div class="text-center mt-16 text-small text-muted">
+    This panel is for administrators only.
+  </div>
+</div>
+
+<footer class="footer">© 2026 Academy Management System. All rights reserved.</footer>
+
+<script src="js/data.js"></script>
+<script>
+  // Already logged in?
+  if (loadAdminSession()) location.href = "admin.html";
+
+  function doLogin() {
+    const user = document.getElementById("f-user").value.trim();
+    const pass = document.getElementById("f-pass").value.trim();
+    if (user === ADMIN_USER && pass === ADMIN_PASS) {
+      saveAdminSession();
+      location.href = "admin.html";
+    } else {
+      document.getElementById("login-alert").style.display = "flex";
+      document.getElementById("login-alert-msg").textContent = "Invalid username or password. Try admin / admin123";
+      document.getElementById("f-pass").value = "";
+      document.getElementById("f-pass").focus();
+    }
+  }
+</script>
+</body>
+</html>
