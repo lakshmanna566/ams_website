@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Your Result – AMS</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="index.html" class="navbar-brand">
+    <div class="logo-icon">🎓</div>
+    Academy Management System
+  </a>
+  <div class="navbar-links">
+    <button class="nav-link btn-nav" onclick="goHome()">Take Another Test</button>
+  </div>
+</nav>
+
+<div class="main-content medium">
+
+  <!-- Score hero -->
+  <div class="card mb-20" id="result-hero-card">
+    <div class="result-hero">
+      <div class="score-circle">
+        <div class="score-big" id="score-big">0</div>
+        <div class="score-total">out of 100</div>
+      </div>
+      <h2 id="result-headline" style="font-size:22px; font-weight:700; margin-bottom:6px;">—</h2>
+      <div id="result-subline" class="text-muted mb-16">—</div>
+      <span id="result-grade-badge" class="badge" style="font-size:13px; padding:6px 20px;">—</span>
+    </div>
+  </div>
+
+  <!-- Stats row -->
+  <div class="stats-row mb-20">
+    <div class="stat-box">
+      <div class="val" id="stat-correct" style="color:var(--green);">0</div>
+      <div class="lbl">Correct</div>
+    </div>
+    <div class="stat-box">
+      <div class="val" id="stat-wrong" style="color:var(--red);">0</div>
+      <div class="lbl">Wrong</div>
+    </div>
+    <div class="stat-box">
+      <div class="val" id="stat-skipped" style="color:var(--text-light);">0</div>
+      <div class="lbl">Skipped</div>
+    </div>
+    <div class="stat-box">
+      <div class="val" id="stat-score" style="color:var(--blue);">0</div>
+      <div class="lbl">Score / 100</div>
+    </div>
+  </div>
+
+  <!-- Student detail + announcement -->
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px;">
+    <div class="card">
+      <div class="card-title" style="font-size:13px;">Student Details</div>
+      <div id="student-details">—</div>
+    </div>
+    <div class="card" style="border-left:4px solid var(--orange); background:#fffbf5;">
+      <div style="font-size:20px; margin-bottom:8px;">📢</div>
+      <div class="fw-600 mb-8" style="font-size:14px;">Result Announcement</div>
+      <p class="text-small text-muted" style="line-height:1.7;">
+        Thank you for appearing in the <strong id="ann-exam-type">exam</strong>.<br>
+        Your performance has been recorded. Official results will be announced by the college on the notice board and via email.
+      </p>
+      <div class="divider"></div>
+      <div class="text-small text-muted">Registration ID: <strong id="ann-reg-id" style="color:var(--text);">—</strong></div>
+    </div>
+  </div>
+
+  <!-- Answer review -->
+  <div class="card mb-20">
+    <div class="section-header">
+      <h3>Answer Review</h3>
+      <div class="d-flex gap-8">
+        <span class="badge badge-success" id="rev-correct-count">0 Correct</span>
+        <span class="badge badge-danger" id="rev-wrong-count">0 Wrong</span>
+        <span class="badge badge-secondary" id="rev-skip-count">0 Skipped</span>
+      </div>
+    </div>
+    <div id="answer-review-list">
+      <!-- rendered by JS -->
+    </div>
+  </div>
+
+  <div class="text-center">
+    <button class="btn btn-primary btn-lg" onclick="goHome()">← Back to Home</button>
+  </div>
+
+</div>
+
+<footer class="footer">© 2026 Academy Management System. All rights reserved.</footer>
+
+<script src="data.js"></script>
+<script>
+  const student = loadSession();
+  const result  = JSON.parse(sessionStorage.getItem("ams_result") || "null");
+  const answers = JSON.parse(sessionStorage.getItem("ams_final_answers") || "null");
+
+  if (!student || !result || !answers) { location.href = "index.html"; }
+
+  // ── Fill hero ────────────────────────────────────────────
+  const score = result.score;
+  const pct   = score;
+  const grade = gradeLabel(pct);
+
+  document.getElementById("score-big").textContent     = score;
+  document.getElementById("stat-correct").textContent  = result.correct;
+  document.getElementById("stat-wrong").textContent    = result.wrong;
+  document.getElementById("stat-skipped").textContent  = result.skipped;
+  document.getElementById("stat-score").textContent    = score;
+  document.getElementById("rev-correct-count").textContent = result.correct + " Correct";
+  document.getElementById("rev-wrong-count").textContent   = result.wrong   + " Wrong";
+  document.getElementById("rev-skip-count").textContent    = result.skipped + " Skipped";
+
+  const headlines = { "Distinction":"Outstanding Performance! 🎉", "First Class":"Excellent Work! 👏", "Second Class":"Good Job! 👍", "Pass":"You Passed! 🙂", "Fail":"Better Luck Next Time 💪" };
+  document.getElementById("result-headline").textContent  = headlines[grade] || "Result Ready";
+  document.getElementById("result-subline").textContent   = `${student.name} · ${student.examType}`;
+  const badge = document.getElementById("result-grade-badge");
+  badge.textContent = grade;
+  badge.className   = "badge " + gradeBadgeClass(pct);
+  badge.style.fontSize = "13px";
+  badge.style.padding  = "6px 20px";
+
+  document.getElementById("ann-exam-type").textContent = result.examType;
+  document.getElementById("ann-reg-id").textContent    = student.id;
+
+  // ── Student details ──────────────────────────────────────
+  const infoFields = [
+    ["Name",   student.name],
+    ["Std",    student.std],
+    ["Board",  student.board],
+    ["School", student.school],
+    ["Exam",   student.examType],
+    ["Date",   result.date],
+  ];
+  document.getElementById("student-details").innerHTML = infoFields.map(([k,v]) =>
+    `<div class="info-row"><span class="label">${k}</span><span class="value">${escHtml(v)}</span></div>`
+  ).join("");
+
+  // ── Answer review ────────────────────────────────────────
+  const reviewEl = document.getElementById("answer-review-list");
+  reviewEl.innerHTML = questionBank.map((q, i) => {
+    const chosen  = answers[i];
+    const correct = q.ans;
+    const isRight = chosen === correct;
+    const isSkip  = chosen === null;
+
+    const statusBadge = isSkip
+      ? `<span class="badge badge-secondary">Skipped</span>`
+      : isRight
+        ? `<span class="badge badge-success">Correct +4</span>`
+        : `<span class="badge badge-danger">Wrong 0</span>`;
+
+    const yourAns  = isSkip ? "Not answered" : escHtml(q.opts[chosen]);
+    const corrAns  = escHtml(q.opts[correct]);
+    const ansColor = isSkip ? "var(--text-light)" : isRight ? "var(--green)" : "var(--red)";
+
+    return `
+      <div style="padding:14px 0; border-bottom:1px solid var(--border); ${i === questionBank.length-1 ? 'border-bottom:none;' : ''}">
+        <div class="d-flex align-center gap-8 mb-8">
+          <span class="text-small text-muted fw-600">Q${i+1}</span>
+          <span class="badge badge-primary" style="font-size:10px;">${escHtml(q.subject)}</span>
+          ${statusBadge}
+        </div>
+        <div style="font-size:14px; font-weight:500; margin-bottom:8px; line-height:1.6;">${escHtml(q.q)}</div>
+        <div class="text-small">
+          Your answer: <span style="color:${ansColor}; font-weight:600;">${yourAns}</span>
+          ${!isRight ? `&nbsp;·&nbsp; Correct answer: <span style="color:var(--green); font-weight:600;">${corrAns}</span>` : ""}
+        </div>
+      </div>`;
+  }).join("");
+
+  function goHome() {
+    clearSession();
+    sessionStorage.removeItem("ams_answers");
+    sessionStorage.removeItem("ams_q_index");
+    sessionStorage.removeItem("ams_result");
+    sessionStorage.removeItem("ams_final_answers");
+    sessionStorage.removeItem("ams_exam_type");
+    location.href = "index.html";
+  }
+</script>
+</body>
+</html>

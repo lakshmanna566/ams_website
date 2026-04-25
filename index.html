@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Academy Management System</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <a href="index.html" class="navbar-brand">
+    <div class="logo-icon">🎓</div>
+    Academy Management System
+  </a>
+  <div class="navbar-links">
+    <button class="nav-link active" onclick="location.href='index.html'">Home</button>
+    <button class="nav-link" onclick="location.href='admin-login.html'">Admin Login</button>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class="main-content">
+
+  <!-- Hero -->
+  <div class="home-hero">
+    <div class="hero-text">
+      <h1>Welcome to Academy<br>Management System</h1>
+      <p>An online platform for conducting placement tests, talent exams, and general knowledge quizzes. Register below, read the instructions, and take your exam — all in one place.</p>
+      <div class="d-flex gap-8" style="flex-wrap:wrap;">
+        <div class="badge badge-primary">25 Questions</div>
+        <div class="badge badge-secondary">4 Marks Each</div>
+        <div class="badge badge-secondary">100 Total Marks</div>
+        <div class="badge badge-secondary">20 Sec / Question</div>
+      </div>
+    </div>
+    <div class="hero-art">📚</div>
+  </div>
+
+  <!-- Notice -->
+  <div class="notice-box">
+    <strong>📢 Notice:</strong> Students are requested to complete registration before attempting the exam. Make sure your phone number and email are correct — your result will be linked to your registration ID.
+  </div>
+
+  <!-- Exam type selection -->
+  <div class="page-header">
+    <h1>Select Examination Type</h1>
+    <p>Choose the exam you want to appear for and click "Register & Continue".</p>
+  </div>
+
+  <div class="exam-cards">
+    <div class="exam-card" id="card-quiz" onclick="selectExam('Online Quiz')">
+      <div class="selected-check">✓</div>
+      <div class="exam-card-icon">📝</div>
+      <h3>Online Quiz</h3>
+      <p>General knowledge and aptitude test. Open to all students of any standard.</p>
+      <div class="mt-8">
+        <span class="badge badge-primary">GK · Science · Maths</span>
+      </div>
+    </div>
+    <div class="exam-card" id="card-placement" onclick="selectExam('Placement')">
+      <div class="selected-check">✓</div>
+      <div class="exam-card-icon">🏢</div>
+      <h3>Placement Exam</h3>
+      <p>Placement aptitude test covering reasoning, verbal and quantitative skills. Open to all students.</p>
+      <div class="mt-8">
+        <span class="badge badge-success">Aptitude &amp; Reasoning</span>
+      </div>
+    </div>
+    <div class="exam-card" id="card-talent" onclick="selectExam('Talent Exam')">
+      <div class="selected-check">✓</div>
+      <div class="exam-card-icon">⭐</div>
+      <h3>Talent Exam</h3>
+      <p>Scholarship and merit-based exam for exceptional students across all classes.</p>
+      <div class="mt-8">
+        <span class="badge badge-orange">Scholarship</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Selected info + button -->
+  <div id="exam-selected-bar" style="display:none;" class="card mb-20">
+    <div class="d-flex align-center justify-between">
+      <div>
+        <div class="fw-600">Selected: <span id="selected-exam-name" class="text-blue"></span></div>
+        <div class="text-small text-muted mt-4">Click "Register & Continue" to fill your details.</div>
+      </div>
+      <a id="proceed-btn" href="register.html" class="btn btn-primary">Register &amp; Continue →</a>
+    </div>
+  </div>
+
+  <!-- Info cards at bottom -->
+  <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:14px; margin-top:8px;">
+    <div class="card" style="border-left:4px solid var(--blue);">
+      <div style="font-size:22px;margin-bottom:8px;">📋</div>
+      <div class="fw-600 mb-4">How It Works</div>
+      <div class="text-small text-muted">Select exam → Register → Read instructions → Start test → Get result instantly.</div>
+    </div>
+    <div class="card" style="border-left:4px solid var(--green);">
+      <div style="font-size:22px;margin-bottom:8px;">🔒</div>
+      <div class="fw-600 mb-4">Secure & Fair</div>
+      <div class="text-small text-muted">Each question has a 20-second timer to ensure fair testing for all participants.</div>
+    </div>
+    <div class="card" style="border-left:4px solid var(--orange);">
+      <div style="font-size:22px;margin-bottom:8px;">📊</div>
+      <div class="fw-600 mb-4">Instant Results</div>
+      <div class="text-small text-muted">Your score is calculated automatically. Official results announced by college.</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  © 2026 Academy Management System. All rights reserved.
+</footer>
+
+<script src="data.js"></script>
+<script>
+  let selectedExam = "";
+
+  // Restore any previous selection
+  const saved = sessionStorage.getItem("ams_exam_type");
+  if (saved) selectExam(saved, false);
+  function selectExam(type, scroll) {
+    selectedExam = type;
+    sessionStorage.setItem("ams_exam_type", type);
+
+    // Update card styles
+    ["quiz","placement","talent"].forEach(id => {
+      document.getElementById("card-" + id).classList.remove("selected");
+    });
+    const map = { "Online Quiz":"quiz", "Placement":"placement", "Talent Exam":"talent" };
+    if (map[type]) document.getElementById("card-" + map[type]).classList.add("selected");
+
+    // Show bar
+    document.getElementById("exam-selected-bar").style.display = "block";
+    document.getElementById("selected-exam-name").textContent = type;
+
+    if (scroll !== false) {
+      document.getElementById("exam-selected-bar").scrollIntoView({ behavior:"smooth", block:"center" });
+    }
+  }
+</script>
+</body>
+</html>
