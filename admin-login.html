@@ -23,7 +23,7 @@
   <div class="text-center mb-24">
     <div style="width:60px; height:60px; background:var(--blue-light); border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:28px; margin:0 auto 14px;">🔐</div>
     <h1 style="font-size:22px; font-weight:700; margin-bottom:6px;">Admin Login</h1>
-    <p class="text-muted text-small">Use credentials: <strong>admin</strong> / <strong>admin123</strong></p>
+    
   </div>
 
   <div id="login-alert" style="display:none;" class="alert alert-danger">
@@ -63,7 +63,7 @@
       location.href = "admin.html";
     } else {
       document.getElementById("login-alert").style.display = "flex";
-      document.getElementById("login-alert-msg").textContent = "Invalid username or password. Try admin / admin123";
+      document.getElementById("login-alert-msg").textContent = "Invalid username or password.";
       document.getElementById("f-pass").value = "";
       document.getElementById("f-pass").focus();
     }
